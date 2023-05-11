@@ -1,4 +1,5 @@
 use std::io;
+use std::cmp::Ordering;
 
 
 
@@ -23,7 +24,14 @@ fn main() {
     println!("You guessed {}", guess);
     //
 // 
+// Unexpectedly - the use of guess.cmp has changed ownerhship
 
+
+match guess.cmp(&pass_number) {
+    Ordering::Less => println!("Too big"),
+    Ordering::Greater => println!("Too small"),
+    Ordering::Equal => {println!("Just right"); return;}
+}
 
     if (pass_number != guess) {
         println!("Not the secret, guess again.");
