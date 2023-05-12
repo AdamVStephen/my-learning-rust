@@ -19,8 +19,14 @@ fn main() {
     //
     // .expect seems unable to take a formatting construct
     // .expect("expr {}", foo); is rejected
+    /*
     let guess :i32 = guess.trim().parse()
         .expect("Looking for an integer");
+        */
+    let guess :i32 = match guess.trim().parse() {
+        Ok(num) => num,
+        Err(_) =>{println!("Not a number"); continue},
+    };
     println!("You guessed {}", guess);
     //
 // 
@@ -30,7 +36,7 @@ fn main() {
 match guess.cmp(&pass_number) {
     Ordering::Less => println!("Too big"),
     Ordering::Greater => println!("Too small"),
-    Ordering::Equal => {println!("Just right"); return;}
+    Ordering::Equal => {println!("Just right"); break;}
 }
 
     if (pass_number != guess) {
