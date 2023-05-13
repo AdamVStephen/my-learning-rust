@@ -1,4 +1,7 @@
 use std::env;
+use std::fs::File;
+use std::path::Path;
+use std::io::prelude::*;
 
 const VERSION :f32 =0.0;
 
@@ -8,14 +11,43 @@ fn usage() {
     println!("greps pattern [filename]");
 }
 
-const TEST_POEM : str = "
+const TEST_POEM : &str = "
 Here is a multiline test poem string.
 The second line herein;
 ";
 
-fn test_data() {
-    println!("{}", TEST_POEM);
+//fn assert_file_exists(filename : &str) -> std::io::Result<(), std::io::Error> {
+fn assert_file_exists(filename : &str) -> std::io::Result<()> {
+    let res:bool = std::path::Path::new(filename).exists();
+    match res {
+        true => { return Ok(()); },
+        false => { return Err(std::io::Error::new(std::io::ErrorKind::AlreadyExists, "already exists")); },
+    }
+}
 
+fn create_poem_file(filename : &str) -> std::io::Result<()> {
+    println!("{}", TEST_POEM);
+    // let filename = "test_poem.txt";
+    // TODO: find the expected way to deal with this.
+    // The following is a mess needing more error study
+    /*
+       let mut fh = match File::open(filename) {
+       Ok(f) => {return Err("file exists");},
+       Err(_) => File::create(filename)?;
+       }
+    //fh.write_all(TEST_POEM)?;
+    */
+    let mut res:bool = true;
+    res = Path::new(filename).exists();
+    match res {
+        true => {return Err(std::io::Error::new(std::io::ErrorKind::AlreadyExists, format!(" {} already exists", filename))); },
+        false => {dbp(&format!("{} not yet in existence : we will make a new one", filename));},
+    }
+
+    let mut fh = File::create(filename)?;
+    fh.write_all(TEST_POEM.as_bytes())?;
+
+    Ok(())
 }
 
 // TODO: determine idiom for trace macros in rust
@@ -88,5 +120,13 @@ fn main() {
     let args : Vec<String> = env::args().collect();
     let (pattern, filename) = parse_args(&args);
     dbp(&format!("Search for {} in {} ", pattern, filename));
-    test_data();
+    //    test_data();
+    let poem_filename:&str = &"poem.txt";
+
+    let test = match assert_file_exists(poem_filename) {
+        Ok(v) => {println!("Test {} returned OK", poem_filename); 0},
+        Err(e) => {println!("Test {} returned Err", poem_filename); 1},
+    };
+
+    create_poem_file(poem_filename);
 }
