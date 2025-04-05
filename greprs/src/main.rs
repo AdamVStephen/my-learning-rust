@@ -12,8 +12,15 @@ fn usage() {
 }
 
 const TEST_POEM : &str = "
-Here is a multiline test poem string.
-The second line herein;
+I'm nobody! Who are you?
+Are you nobody, too?
+Then there's a pair of us - don';t tell !
+They'd banish us, you know.
+
+How dreary to be somebody!
+How public, like a frog.
+To tell your name the livelong day
+To an admiring bog.
 ";
 
 //fn assert_file_exists(filename : &str) -> std::io::Result<(), std::io::Error> {
@@ -50,6 +57,13 @@ fn create_poem_file(filename : &str) -> std::io::Result<()> {
     Ok(())
 }
 
+fn read_file(filename : &str) -> String {
+    let mut fh = File::open(filename).expect("File not found");
+    let mut contents = String::new();
+    fh.read_to_string(&mut contents).expect("error reading file");
+    contents
+}
+//
 // TODO: determine idiom for trace macros in rust
 //
 
@@ -73,7 +87,8 @@ fn dbpp(debug_message : &str) {
     //if debug_level == 0 return;
     println!("{}",debug_message);
 }
-fn parse_args(args: &Vec<String> ) -> (&str, &str) {
+//fn parse_args(args: &Vec<String> ) -> (&str, &str) {
+fn parse_args(args: &Vec<String> ) -> Config {
     println!("{:?}", args);
     let cmd = &args[0];
     let n_args = args.len();
@@ -111,14 +126,23 @@ fn parse_args(args: &Vec<String> ) -> (&str, &str) {
 
     dbp(&format!("Search for {} in {} ", pattern, filename));
 
-    (pattern, filename)
+    Config{query : pattern.to_string(), filename :filename.to_string() }
 }
+
+struct Config {
+    query : String,
+    filename : String,
+}
+
 
 fn main() {
     println!("grep : version {}", VERSION);
     dbp("debug is on");
     let args : Vec<String> = env::args().collect();
-    let (pattern, filename) = parse_args(&args);
+    //let (pattern, filename) = parse_args(&args);
+    let config = parse_args(&args);
+    let pattern = config.query;
+    let filename = config.filename;
     dbp(&format!("Search for {} in {} ", pattern, filename));
     //    test_data();
     let poem_filename:&str = &"poem.txt";
@@ -129,4 +153,8 @@ fn main() {
     };
 
     create_poem_file(poem_filename);
+
+    let poem : String = read_file(poem_filename);
+    println!("Read the poem it is of size {}", poem.len());
+
 }

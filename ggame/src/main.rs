@@ -129,9 +129,25 @@ println!("Initial exercise : guessing game");
     }
 }
 
+// Demo of some structs
+
+struct Dog {
+    breed:String,
+    name:String,
+}
+
+fn demo_dogs() -> Dog {
+    let breed = String::from("Spaniel");
+    let name = String::from("Trixie");
+    let trixie = Dog { breed, name};
+    trixie
+}
+
 fn main() {
 demo_debug();
  //   show_pi();
    demo_tups(); 
 //    demo_guessing_game();
+    let doggie = demo_dogs();
+    println!("The doggie {} is a {}", doggie.name, doggie.breed);
 }
