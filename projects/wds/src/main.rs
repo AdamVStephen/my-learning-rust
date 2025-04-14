@@ -2,14 +2,18 @@ use std::env;
 
 use std::fs::File;
 use std::io::{self, BufReader, BufWriter};
-use std::path::Path;
+
+// Fix Issue #2 by removing reference to HOME as ~
+use dirs_next::home_dir;
+use std::path::{Path,PathBuf};
 
 
 /// Serializes a Vec<String> to a file in JSON format.
-fn save_vec_to_file(vec: &Vec<String>, path: &str) -> io::Result<()> {
-    let _path = Path::new(path);
-    if _path.exists() {println!("{} exists", path);} else {println!("{} does not exist", path);}
-    let file = File::create(path)?;
+//fn save_vec_to_file(vec: &Vec<String>, path: &str) -> io::Result<()> {
+fn save_vec_to_file(vec: &Vec<String>, path: PathBuf) -> io::Result<()> {
+    let _path = Path::new(&path);
+    if _path.exists() {println!("{:#?} exists", path);} else {println!("{:#?} does not exist", path);}
+    let file = File::create(&path)?;
     let writer = BufWriter::new(file);
     println!("Serialising a vector of length {}", vec.len());
     serde_json::to_writer(writer, vec)?;
@@ -17,14 +21,19 @@ fn save_vec_to_file(vec: &Vec<String>, path: &str) -> io::Result<()> {
 }
 
 /// Deserializes a Vec<String> from a JSON file.
-fn load_vec_from_file(path: &str) -> io::Result<Vec<String>> {
-    let _path = Path::new(path);
+//fn load_vec_from_file(path: &str) -> io::Result<Vec<String>> {
+fn load_vec_from_file(path: PathBuf) -> io::Result<Vec<String>> {
+    let _path = Path::new(&path);
 
     let mut vec = Vec::new();
     if _path.exists() {
-        let file = File::open(path)?;
-        let reader = BufReader::new(file);
-        vec = serde_json::from_reader(reader)?;
+//        let file = File::open(&path)?;
+//        let reader = BufReader::new(file);
+//        vec = serde_json::from_reader(reader)?;
+        vec.push("/cherry".to_string());
+
+    } else {
+        println!("{} does not exist", _path.to_string_lossy());
     }
 
     Ok(vec)
@@ -75,9 +84,29 @@ fn echo(args: &[String]) {
     println!("{}", args.join(" "));
 }
 
+fn populate_json(wds_path: PathBuf) -> std::io::Result<()> {
+    // Investigate the failures when the file is zero sized
+
+    let mut initial_dirs : Vec<String> = Vec::new();
+
+    let test_dir: String = "/optical".to_string();
+
+    push(&mut initial_dirs, &test_dir);
+    push(& mut initial_dirs, &test_dir);
+
+    let _ = save_vec_to_file(&initial_dirs, wds_path.clone())?;
+    Ok(())
+}
 fn main() -> std::io::Result<()>{
     // Define the path to the wds dirs
-    let wds_path = "~/.config/wds.json";
+    //
+    // Issue #2 : this is a bug for two reasons, relies on shell expansion (unix), doesn't exist on
+    // other platforms (windows, osx, ...)
+    // let wds_path = "~/.config/wds.json";
+    
+    let home = dirs_next::home_dir().expect("Could not find home directory.");
+
+    let wds_path = home.join(".config").join("wds.json");
 
     // Collect command line arguments
     let args: Vec<String> = env::args().collect();
@@ -101,8 +130,11 @@ fn main() -> std::io::Result<()>{
     // When creating the vector from serdes pair, no need to
     // pre-create an object to be populated.
 
-    let mut dirs = load_vec_from_file(wds_path)?;
+    println!("Command is {}",command);
 
+    let mut dirs = load_vec_from_file(wds_path.clone())?;
+
+    println!("Command as str is {}",command.as_str());
     // Dispatch based on command
     match command.as_str() {
         "greet" => greet(command_args),
@@ -118,7 +150,7 @@ fn main() -> std::io::Result<()>{
 
     println!("Number of directories in dirs {}",dirs.len());
 
-    let _ = save_vec_to_file(&dirs, wds_path)?;
+    let _ = save_vec_to_file(&dirs, wds_path.clone())?;
 
     Ok(())
 }
