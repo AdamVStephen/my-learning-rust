@@ -2,21 +2,31 @@ use std::env;
 
 use std::fs::File;
 use std::io::{self, BufReader, BufWriter};
-use serde::{Deserialize, Serialize};
+use std::path::Path;
+
 
 /// Serializes a Vec<String> to a file in JSON format.
 fn save_vec_to_file(vec: &Vec<String>, path: &str) -> io::Result<()> {
+    let _path = Path::new(path);
+    if _path.exists() {println!("{} exists", path);} else {println!("{} does not exist", path);}
     let file = File::create(path)?;
     let writer = BufWriter::new(file);
+    println!("Serialising a vector of length {}", vec.len());
     serde_json::to_writer(writer, vec)?;
     Ok(())
 }
 
 /// Deserializes a Vec<String> from a JSON file.
 fn load_vec_from_file(path: &str) -> io::Result<Vec<String>> {
-    let file = File::open(path)?;
-    let reader = BufReader::new(file);
-    let vec = serde_json::from_reader(reader)?;
+    let _path = Path::new(path);
+
+    let mut vec = Vec::new();
+    if _path.exists() {
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+        vec = serde_json::from_reader(reader)?;
+    }
+
     Ok(vec)
 }
 
@@ -106,7 +116,9 @@ fn main() -> std::io::Result<()>{
         }
     }
 
-    let _ = save_vec_to_file(&dirs, wds_path);
+    println!("Number of directories in dirs {}",dirs.len());
+
+    let _ = save_vec_to_file(&dirs, wds_path)?;
 
     Ok(())
 }
