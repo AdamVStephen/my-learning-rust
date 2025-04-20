@@ -23,5 +23,7 @@ fn main() {
         .trim() // ignore whitespace around input
         .parse() // convert to float
         .expect("Input not a float"); // which, again, can fail    io::stdin().read_line(&mut temp);
+                                      //
+                                      // 
     println!("Input temperature is {t}");
 }
