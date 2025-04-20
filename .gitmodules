@@ -1,3 +1,6 @@
 [submodule "rustlings"]
 	path = rustlings
 	url = https://github.com/rust-lang/rustlings.git
+[submodule "fd"]
+	path = fd
+	url = git@github.com:vercingetorix-forks/fd.git
