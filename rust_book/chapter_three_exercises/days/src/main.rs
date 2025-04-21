@@ -1,4 +1,32 @@
 use std::io;
+use std::ffi::OsString;
+use std::path::PathBuf;
+use clap::{arg, Command};
+
+fn cli() -> Command {
+    Command::new("days")
+        .about("A training test to reproduce the 12 days of christmas lyrics")
+        .subcommand_required(true)
+        .arg_required_else_help(true)
+        .allow_external_subcommands(true)
+        .subcommand(
+            Command::new("from")
+            .about("From one of the days")
+            .arg(arg!(<FROM> "The first day (1..12)"))
+            .arg_required_else_help(true),
+            )
+        .subcommand(
+            Command::new("until")
+            .about("Until another day ")
+            .arg(arg!(<UNTIL> "The last day (1..12)"))
+            .arg_required_else_help(true),
+            )
+}
+
+fn push_args() -> Vec<clap::Arg> {
+    vec![arg!(-m --message <MESSAGE>)]
+}
+
 
 fn ordinal(n: usize) -> String {
     match n {
@@ -27,7 +55,7 @@ fn nth_day(n: usize, gift: String, gifts: &Vec<String>) {
         String::from("four calling birds"),
     ];
 
-//    let n = n + 1;
+    //    let n = n + 1;
 
     let start: String = String::from("On the ");
     let middle: String = String::from("day of Christmas, my true love gave to me");
@@ -42,6 +70,27 @@ fn nth_day(n: usize, gift: String, gifts: &Vec<String>) {
 }
 
 fn main() {
+    let matches = cli().get_matches();
+
+    match matches.subcommand() {
+        Some(("from", sub_matches)) => {
+            println!(
+                "From {}",
+                sub_matches.get_one::<String>("FROM").expect("required")
+                );
+        }
+        Some(("until", sub_matches)) => {
+            println!(
+                "From {}",
+                sub_matches.get_one::<String>("UNTIL").expect("required")
+                );
+        }
+       _ => unreachable!(), // If all subcommands are defined above, anything else is unreachable!()
+    }
+
+    // Next     TODO : capture the argument values and use them next.
+    // After    TODO : allow two arguments
+
     //let intro: String = String::from("On the first day of Christmas, my true love gave to me");
     let intro: String = String::from("On the {} day of Christmas, my true love gave to me");
 
@@ -68,3 +117,9 @@ fn main() {
         println!("");
     }
 }
+
+
+
+
+
+

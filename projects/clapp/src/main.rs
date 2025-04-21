@@ -1,12 +1,11 @@
 use std::ffi::OsString;
 use std::path::PathBuf;
-use pkg;
+
 use clap::{arg, Command};
 
 fn packaging() {
 println!("{}", pkg.get_manifest_path().dir_path().display());
 }
-
 fn cli() -> Command {
     Command::new("git")
         .about("A fictional versioning CLI")
@@ -62,8 +61,6 @@ fn push_args() -> Vec<clap::Arg> {
 }
 
 fn main() {
-    packaging();
-
     let matches = cli().get_matches();
 
     match matches.subcommand() {
