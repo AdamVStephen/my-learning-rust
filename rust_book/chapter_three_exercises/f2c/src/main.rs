@@ -2,14 +2,14 @@
 //
 // Handle Fahrenheit to/from celsius
 //
-use std::io;
+use std::io
 
 
 fn main() {
     let mut temp : f32 = 0.0;
     let mut input_line = String::new();
     io::stdin() 
-        .read_line(&mut input_line) // actually read the line
+        .read_line(&mut input_line) // actually read the linei
         .expect("Failed to read line"); // which can fail, however
 
     let units: char = input_line
